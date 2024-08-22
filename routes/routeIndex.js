@@ -5,7 +5,7 @@ const authController = require("../controllers/auth.controller")
 const verifyJWT = require('../middlewares/verifyJWT')
 // const { uploadImage, greet } = require("../controllers/book.controller");
 // const { verify } = require('jsonwebtoken');
-const upload = require("../middlewares/multer-config")
+const uploadAndOptimizeImage = require("../middlewares/multer-config")
 
 // const upload = multer({ storage: multer.memoryStorage() });
 
@@ -19,7 +19,7 @@ router.get('/books', bookController.getBooks)
 router.get('/books/:id', bookController.getBookById)
 router.get('/booksbestrating', bookController.getByBestRating)
 
-router.post('/books', verifyJWT, upload, bookController.createBook)
+router.post('/books', verifyJWT, uploadAndOptimizeImage, bookController.createBook)
 
 router.put('/books/:id', verifyJWT, bookController.updateBook)
 
