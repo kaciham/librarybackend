@@ -8,58 +8,39 @@ const mongoose = require('mongoose')
 
 const getByBestRating = async () => {
     try {
-        // First, recalculate the average rating for all books to ensure the data is up-to-date
-        const books = await Book.find();
-        for (let book of books) {
-            book.calculateAverageRating();
-            await book.save(); // Save each book with the updated averageRating
-        }
-
-        // Now get the top 3 books sorted by averageRating in descending order
+        // Fetch top 3 books directly sorted by averageRating in descending order
         const topBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
         return topBooks;
     } catch (error) {
         console.error("Error fetching books by best rating:", error);
         throw error;
     }
-}
+};
+
 
 //CREATE
-
-const createBook = async (bookData, token) => {
+const createBook = async (book, file) => {
     try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log("Decoded JWT:", decoded);
-        const email = decoded.UserInfo.email;
-        const user = await User.findOne({ email: email });
-        console.log(user)
+        const userRating = book.ratings?.find((obj) => obj.userId === book.userId);
 
-        if (!user) {
-            throw new Error('User not found');
-        }
-        const { _id } = user;
+        const newBook = new Book({
+            userId: book.userId,
+            title: book.title,
+            author: book.author,
+            year: book.year,
+            imageUrl: file.filename,
+            genre: book.genre,
+            ratings: userRating ? [{ userId: book.userId, grade: userRating.grade }] : [],
+            averageRating: book.calculateAverageRating()
+        });
 
-        const { title, imageUrl, author, year, genre } = bookData;
-
-
-        const newBook = await Book.create({
-            title,
-            author,
-            imageUrl,
-            year,
-            genre,
-            userId: _id,
-            ratingSchema: {
-                userId: _id,
-                grade: 0
-            }
-        })
+        await newBook.save(); // Ensuring the promise resolves correctly
         return newBook;
     } catch (error) {
         console.error("Error creating book:", error);
-        throw error;
+        throw error; // Properly propagate the error to be handled by the caller
     }
-}
+};
 
 const postRate = async (bookId, rateData, token) => {
     try {

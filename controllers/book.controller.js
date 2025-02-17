@@ -1,47 +1,50 @@
 const { processImage } = require("../services/image.service");
 const bookService = require("../services/book.service")
 
-const uploadImage = async (req, res) => {
-    try {
-        const { buffer, originalname } = req.file;
-        const ref = await processImage(buffer, originalname);
-        const link = `http://localhost:3000/${ref}`;
-        return res.json({ link });
-    } catch (error) {
-        return res.status(500).json({ error: "Failed to process image" });
-    }
-};
+// const uploadImage = async (req, res) => {
+//     try {
+//         const { buffer, originalname } = req.file;
+//         const ref = await processImage(buffer, originalname);
+//         const link = `http://localhost:3000/${ref}`;
+//         return res.json({ link });
+//     } catch (error) {
+//         return res.status(500).json({ error: "Failed to process image" });
+//     }
+// };
 
-const greet = (req, res) => {
-    return res.json({ message: "Hello world 🔥🇵🇹" });
-};
+// const greet = (req, res) => {
+//     return res.json({ message: "Hello world 🔥🇵🇹" });
+// };
 
 const createBook = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        // console.log(token)
-        const bookData = {
-            ...req.body,
-            imageUrl: req.file ? `images/${req.file.filename}` : null
-        };
-        const newBook = await bookService.createBook(bookData, token);
-        res.status(201).json({ "message": "A new book has been created " });
+        console.log(req.body);
+        const bookStringified = req.body.book;
+        const book = JSON.parse(bookStringified);
+        const file = req.file;
+    
+            const newbook = await bookService.createBook(book, file);
+            console.log(book);  
+            res.status(201).json({ message: 'Objet enregistré !', newbook });
     } catch (error) {
         console.error("Error creating book:", error);
-
-        // Send appropriate error response
+        // Handle different types of errors properly
         if (error.name === "ValidationError") {
             return res.status(400).json({ message: "Validation Error", details: error.errors });
+            
+        } else if (error.name === "JsonWebTokenError") {
+            return res.status(401).json({ message: "Unauthorized: Invalid token" });
         } else {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
-}
+};
+
 
 const getBooks = async (req, res) => {
     try {
         const books = await bookService.getBooks();
-        res.status(200).json(books)
+        res.status(200).json({message:"this is all the books from the DB","books":books})
     } catch (error) {
         if (error.name === "ValidationError") {
             return res.status(400).json({ message: "Validation Error", details: error.errors });
@@ -129,8 +132,8 @@ const postRate = async (req, res) => {
 }
 
 module.exports = {
-    uploadImage,
-    greet,
+    // uploadImage,
+    // greet,
     createBook,
     getBooks,
     getBookById,
