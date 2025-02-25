@@ -12,6 +12,7 @@ router.post('/auth/login', authController.login)
 router.get('/books', bookController.getBooks)
 router.get('/bestrating', bookController.getByBestRating)
 router.get('/books/:id', bookController.getBookById)
+router.get('/categories', bookController.getCategory)
 
 
 router.post('/books',

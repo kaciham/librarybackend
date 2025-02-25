@@ -31,8 +31,10 @@ const createBook = async (book, file) => {
             imageUrl: file.filename,
             genre: book.genre,
             ratings: userRating ? [{ userId: book.userId, grade: userRating.grade }] : [],
-            averageRating: book.calculateAverageRating()
+            // averageRating: this.book.calculateAverageRating()
         });
+
+        newBook.calculateAverageRating();
 
         await newBook.save(); // Ensuring the promise resolves correctly
         return newBook;

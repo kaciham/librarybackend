@@ -1,5 +1,6 @@
 const { processImage } = require("../services/image.service");
-const bookService = require("../services/book.service")
+const bookService = require("../services/book.service");
+const { get } = require("mongoose");
 
 // const uploadImage = async (req, res) => {
 //     try {
@@ -121,7 +122,34 @@ const postRate = async (req, res) => {
         const rateData = req.body;
         const id = req.params.id;
         const rate = await bookService.postRate(id, rateData, token);
-        res.status(200).json(rate);
+        res.status(201).json(rate);
+    } catch (error) {
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: "Validation Error", details: error.errors });
+        } else {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+}
+
+const getCategory = (req,res) => {
+    try {
+        const categoriesDeLivres = [
+            "Fiction",
+            "Non-fiction",
+            "Science-fiction",
+            "Fantaisie",
+            "Mystère",
+            "Thriller",
+            "Biographie",
+            "Développement personnel",
+            "Histoire",
+            "Philosophie",
+            "Éducation",    
+            "Poésie",
+            "Autres"
+        ];
+        return res.status(200).json(categoriesDeLivres);
     } catch (error) {
         if (error.name === "ValidationError") {
             return res.status(400).json({ message: "Validation Error", details: error.errors });
@@ -140,5 +168,6 @@ module.exports = {
     updateBook,
     deleteBook,
     getByBestRating,
-    postRate
+    postRate,
+    getCategory
 };
