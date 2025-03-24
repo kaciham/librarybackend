@@ -3,12 +3,13 @@ const Book = require("../models/book");
 const User = require("../models/user");
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose')
+const fs = require('fs');
+const path = require('path');
 
 //BESTRATING
 
 const getByBestRating = async () => {
     try {
-        // Fetch top 3 books directly sorted by averageRating in descending order
         const topBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
         return topBooks;
     } catch (error) {
@@ -16,7 +17,6 @@ const getByBestRating = async () => {
         throw error;
     }
 };
-
 
 //CREATE
 const createBook = async (book, file) => {
@@ -31,14 +31,16 @@ const createBook = async (book, file) => {
             imageUrl: file.filename,
             genre: book.genre,
             ratings: userRating ? [{ userId: book.userId, grade: userRating.grade }] : [],
-            averageRating: book.calculateAverageRating()
+            // averageRating: this.book.calculateAverageRating()
         });
 
-        await newBook.save(); // Ensuring the promise resolves correctly
+        newBook.calculateAverageRating();
+
+        await newBook.save(); 
         return newBook;
     } catch (error) {
         console.error("Error creating book:", error);
-        throw error; // Properly propagate the error to be handled by the caller
+        throw error; 
     }
 };
 
@@ -107,7 +109,7 @@ const getBookById = async (bookId) => {
 
 //UPDATE
 
-const updateBook = async (bookData, bookId) => {
+const updateBook = async (bookData, bookId, file) => {
     try {
         const book = await Book.findById(bookId);
 
@@ -120,7 +122,7 @@ const updateBook = async (bookData, bookId) => {
         // Update the book's properties if they are provided
         if (title !== undefined) book.title = title;
         if (author !== undefined) book.author = author;
-        if (imageUrl !== undefined) book.imageUrl = imageUrl;
+        if (file !== undefined) book.imageUrl = file.filename;
         if (year !== undefined) book.year = year;
         if (genre !== undefined) book.genre = genre;
 
@@ -144,6 +146,15 @@ const deleteBook = async (bookId) => {
         if (!book) {
             throw new Error('Book not found');
         }
+
+        // Delete the image file associated with the book
+        const imagePath = path.join(__dirname, "../uploads", book.imageUrl);
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error("Error deleting image file:", err);
+            }
+        });
+
         await book.deleteOne();
         return null;
     } catch (error) {
