@@ -1,4 +1,4 @@
-const { processImage } = require("../services/image.service");
+// const { processImage } = require("../services/image.service");
 const bookService = require("../services/book.service");
 
 const createBook = async (req, res) => {
