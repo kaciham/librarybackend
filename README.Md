@@ -26,7 +26,7 @@ Ce projet est une application web qui permet aux utilisateurs de gérer des livr
     2 Installez les dépendances
    npm install
 
-   3 Configurez les variables d'environnement : Créez un fichier  .env à la racine du projet (exemple sur .env.github) et ajoutez les lignes suivantes :
+   3 Configurez les variables d'environnement : Créez un fichier  .env à la racine du projet et ajoutez les lignes suivantes :
 
    # URL de connexion à votre base de données MongoDB
 DATABASE_CONNEXION=votre_url_de_connexion_mongodb
