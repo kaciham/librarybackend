@@ -20,7 +20,8 @@ Ce projet est une application web qui permet aux utilisateurs de gérer des livr
 
 1. Clonez le dépôt :
    git clone https://github.com/kaciham/librarybackend.git
-   cd projet7
+
+   cd librarybackend
 
     2 Installez les dépendances
    npm install
