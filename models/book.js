@@ -55,7 +55,12 @@ bookSchema.methods.calculateAverageRating = function () {
 
     // Calculate the new average rating
     const sum = validRatings.reduce((acc, grade) => acc + grade, 0);
-    const newAverage = Number((sum / validRatings.length).toFixed(2));
+    let newAverage = sum / validRatings.length;
+
+    // Round to the nearest 0.5
+    newAverage = Math.round(newAverage * 2) / 2;
+
+    newAverage = Number(newAverage.toFixed(1)); // Ensure one decimal place
 
     // Update the average rating only if it has changed
     if (this.averageRating !== newAverage) {
